@@ -37,6 +37,7 @@ class TestMyFunctions(unittest.TestCase):
         data_processor.process_data.return_value = [2, 4, 6]
         data_processor.analyze_data.return_value = 12
 
+
         self.assertIsNone(run_data_pipeline(data_processor))
 
     def test_divide_numbers(self):
