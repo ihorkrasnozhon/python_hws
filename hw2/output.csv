@@ -1,6 +1,19 @@
-Name,Age,Score
-John,25,85.5
-Alice,30,92.3
-Bob,22,78.9
-Eva,28,96.7
-Michael,35,89.2
+Title;Popularity;Score;Last_day_in_cinema
+Dune: Part Two;903.0;8;2024-05-11
+Inside Out 2;1350.6;7;2024-08-25
+Turning Red;734.5;7;2022-05-23
+Inside Out;694.6;7;2015-08-22
+The Idea of You;503.9;7;2024-07-15
+Tarot;2349.4;6;2024-07-14
+The First Omen;1389.5;6;2024-06-16
+Battle Over Britain;1217.2;6;2024-02-13
+Immaculate;828.3;6;2024-06-02
+The Garfield Movie;798.7;6;2024-07-13
+Ghostbusters: Frozen Empire;548.5;6;2024-06-02
+Sting;507.8;6;2024-06-25
+4 Horsemen: Apocalypse;920.0;5;2022-07-12
+Un père idéal;818.4;5;2024-07-04
+The Watchers;499.9;5;2024-08-19
+The 100 Candles Game: The Last Possession;497.6;5;2024-01-22
+The Legend of Catclaws Mountain;623.3;4;2024-08-09
+Silence of the Prey;721.6;2;2024-07-27
