@@ -185,6 +185,7 @@ def archive_destination_folder(destination_folder):
 
 
 
+
 # пример запуска через парсер
 # python hw3-SOLO.py "C:\\Users\\1456112\\PycharmProjects\\python_hws\\hw3\\copy"
 
