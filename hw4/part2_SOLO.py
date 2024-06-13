@@ -23,7 +23,6 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 
-#Decorator which establish db connection.
 # декоратор для бдшки чтоб дикорировать функции и давать
 # им возможность редактировать бд ии иметь с ней связь
 def db_connection(func):
@@ -69,10 +68,15 @@ def split_user_name_surname(user_full_name):
 # функция для ддобавления юзера в бд
 @db_connection
 def add_user(conn, *users):
+    # logging.info(users)
     cursor = conn.cursor()
     # для каждого юзера достается его информация из словаря
     for user in users:
         name, surname = split_user_name_surname(user['user_full_name'])
+        name = name.strip()
+        surname = surname.strip()
+        logging.info(name)
+        logging.info(surname)
         # валидация имени перед добавлением в базу данных
         validate_field_value(name, 'name')
         # валидация фамилии перед добавлением в базу данных
@@ -94,6 +98,8 @@ def add_user(conn, *users):
 # тут тоже декоратор туда сюда добавление новії банков в бд
 @db_connection
 def add_bank(conn, *banks):
+    logging.info("Adding new bank.")
+    logging.info(banks)
     cursor = conn.cursor()
     for bank in banks:
         try:
@@ -101,6 +107,7 @@ def add_bank(conn, *banks):
         except sqlite3.IntegrityError as e:
             logger.error(f"Error: {str(e)}")
             return {"status": "failure", "message": str(e)}
+    conn.commit()
     return {"status": "success", "message": "Bank(s) added successfully"}
 
 
@@ -108,19 +115,23 @@ def add_bank(conn, *banks):
 @db_connection
 def add_account(conn, *accounts):
     cursor = conn.cursor()
+    logging.info(accounts)
 
     for account in accounts:
+        logging.info(account['status'])
         validate_field_value(account['status'], 'status')
         try:
             cursor.execute('''
-                INSERT INTO Account (user_id, type, account_number, bank_id, bank_name, currency, amount, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO Account (user_id, type, account_number, bank_id, bank_name, currency, balance, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             ''', (account['user_id'], account['type'], account['account_number'], account['bank_id'], account['bank_name'],
-                  account['currency'], account['amount'], account['status']))
+                  account['currency'], account['balance'], account['status']))
+            conn.commit()
         except sqlite3.IntegrityError as e:
-            logger.error(f"Error: {str(e)}")
+            logging.error(f"Error: {str(e)}")
             return {"status": "failure", "message": str(e)}
     return {"status": "success", "message": "Account(s) added successfully"}
+
 
 
 
@@ -198,10 +209,12 @@ def modify_user(conn, user_id, **kwargs):
     fields = ', '.join(f"{k} = ?" for k in kwargs.keys())
     # создаем новій списк с переданніми значениями єтих полей
     values = list(kwargs.values())
+    # logging.info(kwargs.get('name',''))
+
     #и добавляем в конец ид целевого юзера заместь "?" снизу
     values.append(user_id)
-    validate_field_value(kwargs.get('name', ''), ['allowed_values_for_name'], 'name')
-    validate_field_value(kwargs.get('surname', ''), ['allowed_values_for_surname'], 'surname')
+    validate_field_value(kwargs.get('name', ''),  'name')
+    validate_field_value(kwargs.get('surname', ''),  'surname')
 
     # формируем строчку запроса на измененияе данніх
     query = f"UPDATE User SET {fields} WHERE id = ?"
@@ -216,6 +229,7 @@ def modify_user(conn, user_id, **kwargs):
 # модифицируем информацию про банк ну и делаем по сути то же самое что и с юзерами
 @db_connection
 def modify_bank(conn, bank_id, **kwargs):
+    logging.info(kwargs)
     cursor = conn.cursor()
     fields = ', '.join(f"{k} = ?" for k in kwargs.keys())
     values = list(kwargs.values())
@@ -231,6 +245,7 @@ def modify_bank(conn, bank_id, **kwargs):
 # ну и с аккаунтами
 @db_connection
 def modify_account(conn, id, **kwargs):
+    logging.info("Account is being modified.")
     cursor = conn.cursor()
     # Выполняем запрос к базе данных, чтобы получить текущее значение account_number
     cursor.execute("SELECT account_number FROM Account WHERE id = ?", (id,))
@@ -273,6 +288,7 @@ def delete_user(conn, id):
 # тоже удадление ьанка
 @db_connection
 def delete_bank(conn, bank_id):
+    logging.info("Deleting bank.")
     cursor = conn.cursor()
     try:
         cursor.execute("DELETE FROM Bank WHERE id = ?", (bank_id,))
@@ -347,8 +363,11 @@ def transfer_money(conn, sender_account_id, receiver_account_id, amount):
         return {"status": "failure", "message": "Insufficient funds"}
 
     # logging.info(sender_account[8])
-    validate_field_value(sender_account[8], 'account_type')
-    validate_field_value(receiver_account[8], 'account_type')
+    logging.info("Validating sender account:")
+    validate_field_value(sender_account[8], 'status')
+    logging.info("Validating receiver account:")
+
+    validate_field_value(receiver_account[8], 'status')
 
 # по дефолту предполагается что валюта отправителя равна валбте получателя
     exchange_rate = 1
@@ -390,10 +409,17 @@ def transfer_money(conn, sender_account_id, receiver_account_id, amount):
 
 # Validate fields with strict set of values mentioned in db scheme
 def validate_field_value(value, field_name):
+    logging.info(f"Validating {field_name}: {value}")
     if field_name == 'name':
-        # Проверка имени пользователя
         if not value.isalpha():
-            raise ValueError(f"Invalid value '{value}' for field '{field_name}'! Only alphabetical characters are allowed.")
+            raise ValueError(
+                f"Invalid value '{value}' for field '{field_name}'! Only alphabetical characters are allowed.")
+        if len(value) > 50:
+            raise ValueError(f"Invalid value '{value}' for field '{field_name}'! Maximum length is 50 characters.")
+    elif field_name == 'surname':
+        if not value.isalpha():
+            raise ValueError(
+                f"Invalid value '{value}' for field '{field_name}'! Only alphabetical characters are allowed.")
         if len(value) > 50:
             raise ValueError(f"Invalid value '{value}' for field '{field_name}'! Maximum length is 50 characters.")
     elif field_name == 'age':
@@ -404,13 +430,16 @@ def validate_field_value(value, field_name):
                 raise ValueError(f"Invalid value '{value}' for field '{field_name}'! Age must be between 18 and 100.")
         except ValueError:
             raise ValueError(f"Invalid value '{value}' for field '{field_name}'! Age must be an integer.")
-    elif field_name == 'account_type':
+    elif field_name == 'status':
         # Проверка типа аккаунта
         allowed_types = ['gold', 'silver', 'platinum']  # Допустимые типы аккаунтов
         if value not in allowed_types:
-            raise ValueError(f"Invalid value '{value}' for field '{field_name}'! Allowed types are {', '.join(allowed_types)}.")
+            raise ValueError(
+                f"Invalid value '{value}' for field '{field_name}'! Allowed types are {', '.join(allowed_types)}.")
     else:
         raise ValueError(f"Validation not implemented for field '{field_name}'!")
+
+    logging.info("Validated OK")
 
 
 #If datetime of transaction wasn’t passed, put the current time.
@@ -633,6 +662,8 @@ def user_transactions_last_3_months(conn, sender_name):
 
 
 
+
+
 if __name__ == "__main__":
 
 
@@ -682,5 +713,6 @@ if __name__ == "__main__":
     # print("User`s transactions: ")
     # user_transactions_last_3_months(sender_name)
 
+    # add_user({'user_full_name': 'John Deer', 'birth_day': '1990-01-01', 'accounts': '1'})
 
     pass
