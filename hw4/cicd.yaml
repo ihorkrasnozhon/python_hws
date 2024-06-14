@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+      - hw-4
+      - hw-5
 
 jobs:
   build:
@@ -16,12 +18,11 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       - name: Run tests
-        run: python -m unittest discover
+        run: python -m tests_to_2.py
 
-      # Additional steps for deployment, environment setup, etc.
