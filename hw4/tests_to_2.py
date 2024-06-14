@@ -107,5 +107,8 @@ class TestBank(unittest.TestCase):
             'balance': 300,
             'status': 'silver'
         })
+
+
+
         result = transfer_money(3, 4, 200)
         self.assertEqual(result['status'], 'success')
