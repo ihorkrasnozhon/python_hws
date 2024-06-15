@@ -32,8 +32,10 @@ jobs:
       - name: Run a 5.1 script
         run: python -m unittest discover -s . -p "tests_to_2.py"
 
-      # Runs a set of commands using the runners shell
-      - name: Run a 5.2 script
+      - name: Run tests from tests_training.py
         run: python -m unittest discover -s . -p "tests_training.py"
+
+      - name: Add other actions
+        run: |
           echo Add other actions to build,
           echo test, and deploy your project.
