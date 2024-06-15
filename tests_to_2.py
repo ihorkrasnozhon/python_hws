@@ -5,12 +5,13 @@ from part2_SOLO import add_user, add_bank, add_account, modify_user, modify_bank
 
 
 
-
+# делаем класс ТестБанк наследником от метода юниттеста, что определяет этот класс как тест кейс
 class TestBank(unittest.TestCase):
 
 
     def test_add_user(self):
         result = add_user({'user_full_name': 'Jo Do', 'birth_day': '1990-01-01', 'accounts': '2'})
+        # ну и это типа сравнить резалт с ожиданием
         self.assertEqual(result['status'], 'success')
 
     def test_add_bank(self):
