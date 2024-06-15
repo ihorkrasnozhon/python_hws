@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 #чето тут странно с конном этим
 def create_database():
-    unique_name_surname_input = input("Should name and surname be unique? (yes/no): ").strip().lower()
+    # unique_name_surname_input = input("Should name and surname be unique? (yes/no): ").strip().lower()
 
     # if unique_name_surname_input in ['yes', 'y']:
     #     unique_name_surname = True
