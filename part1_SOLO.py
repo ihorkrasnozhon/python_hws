@@ -19,14 +19,15 @@ logger = logging.getLogger(__name__)
 def create_database():
     unique_name_surname_input = input("Should name and surname be unique? (yes/no): ").strip().lower()
 
-    if unique_name_surname_input in ['yes', 'y']:
-        unique_name_surname = True
-    elif unique_name_surname_input in ['no', 'n']:
-        unique_name_surname = False
-    else:
-        print("Invalid input. Please enter 'yes' or 'no'.")
-        create_database()
+    # if unique_name_surname_input in ['yes', 'y']:
+    #     unique_name_surname = True
+    # elif unique_name_surname_input in ['no', 'n']:
+    #     unique_name_surname = False
+    # else:
+    #     print("Invalid input. Please enter 'yes' or 'no'.")
+    #     create_database()
     # conn = None
+    unique_name_surname = True
     try:
         logging.info(f"Creating database with unique_name_surname={unique_name_surname}")
         conn = sqlite3.connect('bank.db')
